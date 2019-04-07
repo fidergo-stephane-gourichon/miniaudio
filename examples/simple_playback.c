@@ -49,6 +49,8 @@ int main(int argc, char** argv)
         return -3;
     }
 
+    printf("Using device: %s\n", device.playback.name);
+
     if (ma_device_start(&device) != MA_SUCCESS) {
         printf("Failed to start playback device.\n");
         ma_device_uninit(&device);
