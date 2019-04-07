@@ -14603,11 +14603,11 @@ ma_result ma_device_write__pulse(ma_device* pDevice, const void* pPCMFrames, ma_
 
     ma_uint32 totalFramesWritten = 0;
     while (totalFramesWritten < frameCount) {
-        //printf("TRACE: Outer loop.\n");
+        printf("TRACE: Outer loop.\n");
 
         /* Place the data into the mapped buffer if we have one. */
         if (pDevice->pulse.pMappedBufferPlayback != NULL && pDevice->pulse.mappedBufferFramesRemainingPlayback > 0) {
-            //printf("TRACE: Copying data.\n");
+            printf("TRACE: Copying data.\n");
 
             ma_uint32 bpf = ma_get_bytes_per_frame(pDevice->playback.internalFormat, pDevice->playback.internalChannels);
             ma_uint32 mappedBufferFramesConsumed = pDevice->pulse.mappedBufferFramesCapacityPlayback - pDevice->pulse.mappedBufferFramesRemainingPlayback;
@@ -14627,7 +14627,7 @@ ma_result ma_device_write__pulse(ma_device* pDevice, const void* pPCMFrames, ma_
         */
         if (pDevice->pulse.mappedBufferFramesCapacityPlayback > 0 && pDevice->pulse.mappedBufferFramesRemainingPlayback == 0) {
             size_t nbytes = pDevice->pulse.mappedBufferFramesCapacityPlayback * ma_get_bytes_per_frame(pDevice->playback.internalFormat, pDevice->playback.internalChannels);
-            //printf("TRACE: Submitting data. %d\n", nbytes);
+            printf("TRACE: Submitting data. %zu\n", nbytes);
 
             int error = ((ma_pa_stream_write_proc)pDevice->pContext->pulse.pa_stream_write)((ma_pa_stream*)pDevice->pulse.pStreamPlayback, pDevice->pulse.pMappedBufferPlayback, nbytes, NULL, 0, MA_PA_SEEK_RELATIVE);
             if (error < 0) {
@@ -14646,7 +14646,7 @@ ma_result ma_device_write__pulse(ma_device* pDevice, const void* pPCMFrames, ma_
 
         /* Getting here means we need to map a new buffer. If we don't have enough space we need to wait for more. */
         for (;;) {
-            //printf("TRACE: Inner loop.\n");
+            printf("TRACE: Inner loop.\n");
 
             /* If the device has been corked, don't try to continue. */
             if (((ma_pa_stream_is_corked_proc)pDevice->pContext->pulse.pa_stream_is_corked)((ma_pa_stream*)pDevice->pulse.pStreamPlayback)) {
@@ -14657,7 +14657,7 @@ ma_result ma_device_write__pulse(ma_device* pDevice, const void* pPCMFrames, ma_
             if (writableSizeInBytes != (size_t)-1) {
                 size_t periodSizeInBytes = (pDevice->playback.internalBufferSizeInFrames / pDevice->playback.internalPeriods) * ma_get_bytes_per_frame(pDevice->playback.internalFormat, pDevice->playback.internalChannels);
                 if (writableSizeInBytes >= periodSizeInBytes) {
-                    //printf("TRACE: Data available.\n");
+                    printf("TRACE: Data available.\n");
 
                     /* Data is avaialable. */
                     size_t bytesToMap = periodSizeInBytes;
@@ -14672,7 +14672,7 @@ ma_result ma_device_write__pulse(ma_device* pDevice, const void* pPCMFrames, ma_
                     break;
                 } else {
                     /* No data available. Need to wait for more. */
-                    //printf("TRACE: Playback: pa_mainloop_iterate(). writableSizeInBytes=%d, periodSizeInBytes=%d\n", writableSizeInBytes, periodSizeInBytes);
+                    printf("TRACE: Playback: pa_mainloop_iterate(). writableSizeInBytes=%zu, periodSizeInBytes=%zu\n", writableSizeInBytes, periodSizeInBytes);
 
                     int error = ((ma_pa_mainloop_iterate_proc)pDevice->pContext->pulse.pa_mainloop_iterate)((ma_pa_mainloop*)pDevice->pulse.pMainLoop, 1, NULL);
                     if (error < 0) {
@@ -14753,7 +14753,7 @@ ma_result ma_device_read__pulse(ma_device* pDevice, void* pPCMFrames, ma_uint32 
 
         /* Getting here means we need to map a new buffer. If we don't have enough data we wait for more. */
         for (;;) {
-            //printf("TRACE: Inner loop.\n");
+            printf("TRACE: Inner loop.\n");
 
             /* If the device has been corked, don't try to continue. */
             if (((ma_pa_stream_is_corked_proc)pDevice->pContext->pulse.pa_stream_is_corked)((ma_pa_stream*)pDevice->pulse.pStreamCapture)) {
@@ -14771,7 +14771,7 @@ ma_result ma_device_read__pulse(ma_device* pDevice, void* pPCMFrames, ma_uint32 
                         return ma_post_error(pDevice, MA_LOG_LEVEL_ERROR, "[PulseAudio] Failed to peek capture buffer.", ma_result_from_pulse(error));
                     }
 
-                    //printf("TRACE: Data available: bytesMapped=%d, readableSizeInBytes=%d, periodSizeInBytes=%d.\n", bytesMapped, readableSizeInBytes, periodSizeInBytes);
+                    printf("TRACE: Data available: bytesMapped=%zu, readableSizeInBytes=%zu, periodSizeInBytes=%zu.\n", bytesMapped, readableSizeInBytes, periodSizeInBytes);
 
                     if (pDevice->pulse.pMappedBufferCapture == NULL && bytesMapped == 0) {
                         /* Nothing available. This shouldn't happen because we checked earlier with pa_stream_readable_size(). I'm going to throw an error in this case. */
@@ -14784,7 +14784,7 @@ ma_result ma_device_read__pulse(ma_device* pDevice, void* pPCMFrames, ma_uint32 
                     break;
                 } else {
                     /* No data available. Need to wait for more. */
-                    //printf("TRACE: Capture: pa_mainloop_iterate(). readableSizeInBytes=%d, periodSizeInBytes=%d\n", readableSizeInBytes, periodSizeInBytes);
+                    printf("TRACE: Capture: pa_mainloop_iterate(). readableSizeInBytes=%zu, periodSizeInBytes=%zu\n", readableSizeInBytes, periodSizeInBytes);
 
                     int error = ((ma_pa_mainloop_iterate_proc)pDevice->pContext->pulse.pa_mainloop_iterate)((ma_pa_mainloop*)pDevice->pulse.pMainLoop, 1, NULL);
                     if (error < 0) {
