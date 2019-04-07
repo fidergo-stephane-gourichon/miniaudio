@@ -51,6 +51,9 @@ int main(int argc, char** argv)
 
     printf("Using device: %s\n", device.playback.name);
 
+    printf("DECODER: %s / %d / %d\n", ma_get_format_name(decoder.outputFormat), decoder.outputChannels, decoder.outputSampleRate);
+    printf("DEVICE:  %s / %d / %d / %s\n", ma_get_format_name(device.playback.internalFormat), device.playback.internalChannels, device.playback.internalSampleRate, ma_get_backend_name(device.pContext->backend));
+
     if (ma_device_start(&device) != MA_SUCCESS) {
         printf("Failed to start playback device.\n");
         ma_device_uninit(&device);
