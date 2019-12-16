@@ -9,12 +9,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+void log_callback(ma_context* pContext, ma_device* pDevice, ma_uint32 logLevel, const char* message)
+{
+    (void)pContext;
+    (void)pDevice;
+    fprintf(stderr, "miniaudio: [%s] %s\n", ma_log_level_to_string(logLevel), message);
+}
+
 void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
 {
     drwav* pWav = (drwav*)pDevice->pUserData;
     ma_assert(pWav != NULL);
 
     drwav_write_pcm_frames(pWav, frameCount, pInput);
+
+    fprintf(stderr, ".");
 
     (void)pOutput;
 }
@@ -41,6 +50,19 @@ int main(int argc, char** argv)
     if (drwav_init_file_write(&wav, argv[1], &wavFormat, NULL) == DRWAV_FALSE) {
         printf("Failed to initialize output file.\n");
         return -1;
+    }
+
+    {
+    ma_context_config contextConfig;
+    ma_context context;
+
+    contextConfig = ma_context_config_init();
+    contextConfig.logCallback = log_callback;
+
+    if (ma_context_init(NULL, 0, &contextConfig, &context) != MA_SUCCESS) {
+        printf("Failed to initialize context.");
+        return -2;
+    }
     }
 
     deviceConfig = ma_device_config_init(ma_device_type_capture);
