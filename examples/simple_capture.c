@@ -71,6 +71,7 @@ int main(int argc, char** argv)
     deviceConfig.sampleRate       = wavFormat.sampleRate;
     deviceConfig.dataCallback     = data_callback;
     deviceConfig.pUserData        = &wav;
+    deviceConfig.performanceProfile = ma_performance_profile_conservative;
 
     result = ma_device_init(NULL, &deviceConfig, &device);
     if (result != MA_SUCCESS) {
