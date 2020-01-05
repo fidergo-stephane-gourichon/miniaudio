@@ -72,6 +72,8 @@ int main(int argc, char** argv)
     deviceConfig.dataCallback     = data_callback;
     deviceConfig.pUserData        = &wav;
     deviceConfig.performanceProfile = ma_performance_profile_conservative;
+    deviceConfig.periods = 3;
+    deviceConfig.bufferSizeInMilliseconds = 20 * deviceConfig.periods;
 
     result = ma_device_init(NULL, &deviceConfig, &device);
     if (result != MA_SUCCESS) {
